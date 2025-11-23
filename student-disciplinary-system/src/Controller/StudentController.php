@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Controller;
 
 class StudentController
@@ -8,7 +7,6 @@ class StudentController
 
     public function __construct(\PDO $pdo = null)
     {
-        // prefer injected PDO, otherwise use global from bootstrap if present
         if ($pdo instanceof \PDO) {
             $this->pdo = $pdo;
         } elseif (!empty($GLOBALS['pdo']) && $GLOBALS['pdo'] instanceof \PDO) {
@@ -22,18 +20,18 @@ class StudentController
     {
         header('Content-Type: text/html; charset=utf-8');
 
-        // compute back link base
         $base = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])), '/');
         $base = $base === '/' ? '' : $base;
         $backUrl = $base ?: '/';
         $addUrl = $base . '/students/create';
 
         $students = [];
+        $error = null;
         if ($this->pdo) {
             try {
                 $stmt = $this->pdo->query('SELECT StudentID, EnrollmentNo, FirstName, LastName, Email, Phone FROM student ORDER BY StudentID DESC LIMIT 100');
                 $students = $stmt->fetchAll();
-            } catch (\Throwable $e) {
+            } catch (\Exception $e) {
                 $error = $e->getMessage();
             }
         }
@@ -55,7 +53,6 @@ class StudentController
               display:flex;
               align-items:center;
               justify-content:center;
-              /* add extra space at the top */
               padding:64px 32px 32px;
               color:#222;
             }
@@ -77,7 +74,6 @@ class StudentController
               box-shadow:0 4px 12px rgba(2,6,23,0.08);font-weight:600;font-size:0.95rem;
             }
             a.button.secondary{background:#6c757d}
-            /* table wrapper to allow scroll with sticky header */
             .table-wrap{max-height:420px;overflow:auto;margin-top:16px;border-radius:8px;border:1px solid #f1f3f5}
             table{width:100%;border-collapse:collapse}
             th,td{padding:10px 12px;text-align:left;border-bottom:1px solid #eef0f3;background:transparent}
@@ -112,28 +108,28 @@ class StudentController
               <div class="table-wrap" role="region" aria-label="Students table">
                 <table>
                   <caption style="caption-side:top;text-align:left;padding:8px 12px;font-weight:700;color:#374151">Students</caption>
-                 <thead>
-                   <tr>
-                     <th>ID</th>
-                     <th>Enrollment</th>
-                     <th>Name</th>
-                     <th>Email</th>
-                     <th>Phone</th>
-                   </tr>
-                 </thead>
-                 <tbody>
-                <?php foreach ($students as $s): ?>
-                  <tr>
-                    <td><?php echo htmlspecialchars($s['StudentID'], ENT_QUOTES); ?></td>
-                    <td><?php echo htmlspecialchars($s['EnrollmentNo'] ?? '', ENT_QUOTES); ?></td>
-                    <td><?php echo htmlspecialchars(trim(($s['FirstName'] ?? '') . ' ' . ($s['LastName'] ?? '')), ENT_QUOTES); ?></td>
-                    <td class="muted"><?php echo htmlspecialchars($s['Email'] ?? '', ENT_QUOTES); ?></td>
-                    <td class="muted"><?php echo htmlspecialchars($s['Phone'] ?? '', ENT_QUOTES); ?></td>
-                  </tr>
-                <?php endforeach; ?>
-                </tbody>
-              </table>
-            </div>
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Enrollment</th>
+                      <th>Name</th>
+                      <th>Email</th>
+                      <th>Phone</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                  <?php foreach ($students as $s): ?>
+                    <tr>
+                      <td><?php echo htmlspecialchars($s['StudentID'], ENT_QUOTES); ?></td>
+                      <td><?php echo htmlspecialchars($s['EnrollmentNo'] ?? '', ENT_QUOTES); ?></td>
+                      <td><?php echo htmlspecialchars(trim(($s['FirstName'] ?? '') . ' ' . ($s['LastName'] ?? '')), ENT_QUOTES); ?></td>
+                      <td class="muted"><?php echo htmlspecialchars($s['Email'] ?? '', ENT_QUOTES); ?></td>
+                      <td class="muted"><?php echo htmlspecialchars($s['Phone'] ?? '', ENT_QUOTES); ?></td>
+                    </tr>
+                  <?php endforeach; ?>
+                  </tbody>
+                </table>
+              </div>
             <?php endif; ?>
 
           </div>
@@ -142,7 +138,6 @@ class StudentController
         <?php
     }
 
-    // new: create student form + store
     public function create()
     {
         header('Content-Type: text/html; charset=utf-8');
@@ -173,7 +168,6 @@ class StudentController
             if (empty($errors)) {
                 if ($this->pdo) {
                     try {
-                        // compute next StudentID and EnrollmentNo
                         $this->pdo->beginTransaction();
                         $stmt = $this->pdo->query('SELECT COALESCE(MAX(StudentID),0) + 1 AS nextId FROM student');
                         $nextId = (int)$stmt->fetchColumn();
@@ -181,13 +175,11 @@ class StudentController
 
                         $enrollment = 'EN' . str_pad((string)$nextId, 5, '0', STR_PAD_LEFT);
 
-                        // split name into first/last
                         $parts = preg_split('/\s+/', $old['name'], 2);
                         $first = $parts[0] ?? '';
                         $last = $parts[1] ?? '';
 
                         $ins = $this->pdo->prepare('INSERT INTO student (StudentID, EnrollmentNo, FirstName, LastName, DOB, Gender, Email, Phone, CreatedAt) VALUES (?, ?, ?, ?, NULL, ?, ?, ?, ?)');
-                        // set default Gender to 'Other' to satisfy enum
                         $ins->execute([
                             $nextId,
                             $enrollment,
@@ -201,10 +193,9 @@ class StudentController
 
                         $this->pdo->commit();
 
-                        // redirect back to students list
                         header('Location: ' . $studentsUrl);
                         exit;
-                    } catch (\Throwable $e) {
+                    } catch (\Exception $e) {
                         if ($this->pdo && $this->pdo->inTransaction()) {
                             $this->pdo->rollBack();
                         }
@@ -216,7 +207,6 @@ class StudentController
             }
         }
 
-        // render form (styled same as index)
         ?>
         <!doctype html>
         <html lang="en">
@@ -286,5 +276,44 @@ class StudentController
         </body>
         </html>
         <?php
+    }
+
+    // JSON search endpoint for AJAX suggestions
+    public function searchJson(string $q = '')
+    {
+        header('Content-Type: application/json; charset=utf-8');
+        $results = [];
+
+        $q = trim($q ?? '');
+        if ($q === '') {
+            echo json_encode($results, JSON_UNESCAPED_UNICODE);
+            return;
+        }
+
+        if ($this->pdo) {
+            try {
+                $like = '%' . str_replace(['%','_'], ['\\%','\\_'], $q) . '%';
+                $sql = "SELECT StudentID, EnrollmentNo, FirstName, LastName
+                        FROM student
+                        WHERE EnrollmentNo LIKE :q OR CONCAT(FirstName,' ',LastName) LIKE :q
+                        ORDER BY FirstName, LastName
+                        LIMIT 20";
+                $stmt = $this->pdo->prepare($sql);
+                $stmt->execute([':q' => $like]);
+                $rows = $stmt->fetchAll();
+                foreach ($rows as $r) {
+                    $results[] = [
+                        'id' => (int)$r['StudentID'],
+                        'enrollment' => $r['EnrollmentNo'],
+                        'name' => trim(($r['FirstName'] ?? '') . ' ' . ($r['LastName'] ?? '')),
+                    ];
+                }
+            } catch (\Exception $e) {
+                echo json_encode([], JSON_UNESCAPED_UNICODE);
+                return;
+            }
+        }
+
+        echo json_encode($results, JSON_UNESCAPED_UNICODE);
     }
 }

@@ -114,6 +114,15 @@ if ($route === '/incidents' && $_SERVER['REQUEST_METHOD'] === 'GET') {
     exit;
 }
 
+// API: student search (AJAX)
+if ($route === '/api/students' && $_SERVER['REQUEST_METHOD'] === 'GET') {
+    require_once __DIR__ . '/../src/Controller/StudentController.php';
+    $q = trim($_GET['q'] ?? '');
+    $ctrl = new \App\Controller\StudentController($GLOBALS['pdo'] ?? null);
+    $ctrl->searchJson($q);
+    exit;
+}
+
 // fallback 404
 http_response_code(404);
 echo '<h1>404 Not Found</h1>';

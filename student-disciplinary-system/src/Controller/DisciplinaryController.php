@@ -312,15 +312,10 @@ class DisciplinaryController
                 </div>
 
                 <div>
-                  <label for="student">Student</label>
-                  <select id="student" name="student">
-                    <option value="">Select student</option>
-                    <?php foreach ($studentList as $st): $nm = trim(($st['FirstName'] ?? '') . ' ' . ($st['LastName'] ?? '')); ?>
-                      <option value="<?php echo (int)$st['StudentID']; ?>" <?php echo ((string)$st['StudentID'] === (string)$old['student']) ? 'selected' : ''; ?>>
-                        <?php echo htmlspecialchars($nm ?: 'Student ' . $st['StudentID'], ENT_QUOTES); ?>
-                      </option>
-                    <?php endforeach; ?>
-                  </select>
+                  <label for="student_search">Student (type name or enrollment)</label>
+                  <input id="student_search" name="student_search" type="text" autocomplete="off" placeholder="Type name or EN00001" value="<?php echo htmlspecialchars(($old['student_display'] ?? ''), ENT_QUOTES); ?>">
+                  <input id="student" name="student" type="hidden" value="<?php echo htmlspecialchars($old['student'] ?? '', ENT_QUOTES); ?>">
+                  <ul id="student_suggestions" style="list-style:none;margin:6px 0 0;padding:0;max-height:180px;overflow:auto;border:1px solid #eef0f3;border-radius:6px;display:none;background:#fff"></ul>
                 </div>
               </div>
 
@@ -335,6 +330,59 @@ class DisciplinaryController
               </div>
             </form>
           </div>
+
+          <script>
+          (function(){
+            const base = '<?php echo addslashes($base === '' ? '' : $base); ?>';
+            const searchInput = document.getElementById('student_search');
+            const hiddenInput = document.getElementById('student');
+            const suggestions = document.getElementById('student_suggestions');
+            let timer = null;
+
+            function renderList(items){
+              suggestions.innerHTML = '';
+              if (!items.length) { suggestions.style.display = 'none'; return; }
+              items.forEach(it=>{
+                const li = document.createElement('li');
+                li.style.padding = '8px 12px';
+                li.style.cursor = 'pointer';
+                li.textContent = it.name + (it.enrollment ? ' — ' + it.enrollment : '');
+                li.dataset.id = it.id;
+                li.addEventListener('click', function(){
+                  hiddenInput.value = this.dataset.id;
+                  searchInput.value = this.textContent;
+                  suggestions.style.display = 'none';
+                });
+                suggestions.appendChild(li);
+              });
+              suggestions.style.display = 'block';
+            }
+
+            function doSearch(q){
+              if (!q || q.length < 1) { renderList([]); return; }
+              fetch(base + '/api/students?q=' + encodeURIComponent(q), {credentials:'same-origin'})
+                .then(r => r.json())
+                .then(data => renderList(data))
+                .catch(()=> renderList([]));
+            }
+
+            searchInput.addEventListener('input', function(){
+              hiddenInput.value = ''; // clear selected id when typing
+              clearTimeout(timer);
+              const q = this.value.trim();
+              timer = setTimeout(()=> doSearch(q), 250);
+            });
+
+            // clicking outside closes suggestions
+            document.addEventListener('click', function(e){
+              if (!suggestions.contains(e.target) && e.target !== searchInput) {
+                suggestions.style.display = 'none';
+              }
+            });
+
+            // if user submits without selecting, allow server-side fallback to search by typed enrollment/name
+          })();
+          </script>
         </body>
         </html>
         <?php
