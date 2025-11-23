@@ -41,6 +41,7 @@ class DisciplinaryController
         <html lang="en">
         <head>
           <meta charset="utf-8">
+            <?php require_once __DIR__ . '/../views/_theme_head.php'; ?>
           <title>Incidents — Student Disciplinary System</title>
           <meta name="viewport" content="width=device-width,initial-scale=1">
           <style>
@@ -166,6 +167,7 @@ class DisciplinaryController
           </style>
         </head>
         <body>
+                        <?php require_once __DIR__ . '/../views/_theme_body.php'; ?>
           <!-- theme toggle button (site-wide) -->
           <button id="themeToggle" class="theme-toggle" aria-pressed="false" aria-label="Toggle dark mode" title="Toggle dark mode">🌙</button>
 

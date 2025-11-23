@@ -161,9 +161,8 @@ class StudentController
           </style>
         </head>
         <body>
-          <!-- theme toggle button (site-wide) -->
-          <button id="themeToggle" class="theme-toggle" aria-pressed="false" aria-label="Toggle dark mode" title="Toggle dark mode">🌙</button>
-
+          <?php require_once __DIR__ . '/../views/_theme_head.php'; ?>
+          <?php require_once __DIR__ . '/../views/_theme_body.php'; ?>
           <div class="card" role="main">
             <div class="header">
               <div>
@@ -499,9 +498,8 @@ class StudentController
           </style>
         </head>
         <body>
-          <!-- theme toggle button (site-wide) -->
-          <button id="themeToggle" class="theme-toggle" aria-pressed="false" aria-label="Toggle dark mode" title="Toggle dark mode">🌙</button>
-
+          <?php require_once __DIR__ . '/../views/_theme_head.php'; ?>
+          <?php require_once __DIR__ . '/../views/_theme_body.php'; ?>
           <div class="card" role="main">
             <h1>Add Student</h1>
             <p class="lead">Enter student details. ID and Enrollment are generated automatically.</p>
@@ -682,34 +680,42 @@ class StudentController
         ?>
         <!doctype html>
         <html lang="en">
-        <head><meta charset="utf-8"><title>Edit Student</title><meta name="viewport" content="width=device-width,initial-scale=1"><style>
-        :root{--bg:#f6f8fa;--card:#fff;--primary:#007bff;--muted:#6c757d}
-        body{margin:0;font-family:Inter,Roboto,Arial;background:linear-gradient(135deg,#eef2f7 0%,#f6f8fa 100%);padding:64px 32px 32px}
-        .card{max-width:640px;background:var(--card);padding:24px;border-radius:12px;box-shadow:0 6px 24px rgba(16,24,40,0.08);border:1px solid #eceef3}
-        label{display:block;margin:8px 0 6px;font-weight:600}
-        input{width:100%;padding:10px;border:1px solid #e6e9ef;border-radius:8px}
-        .actions{display:flex;gap:12px;justify-content:flex-end;margin-top:18px}
-        .errors{background:#fff0f0;border:1px solid #ffd1d1;padding:10px;border-radius:8px;color:#7a1b1b}
-        .btn{padding:10px 14px;border-radius:8px;border:0;color:#fff;background:var(--primary)}
-        a.cancel{background:#6c757d;color:#fff;padding:10px 14px;border-radius:8px;text-decoration:none}
-        </style></head>
+        <head>
+          <meta charset="utf-8">
+          <title>Students — Student Disciplinary System</title>
+          <meta name="viewport" content="width=device-width,initial-scale=1">
+          <style>
+            :root{--bg:#f6f8fa;--card:#fff;--primary:#007bff;--muted:#6c757d}
+            body{margin:0;font-family:Inter,Roboto,Arial;background:linear-gradient(135deg,#eef2f7 0%,#f6f8fa 100%);padding:64px 32px 32px}
+            .card{max-width:640px;background:var(--card);padding:24px;border-radius:12px;box-shadow:0 6px 24px rgba(16,24,40,0.08);border:1px solid #eceef3}
+            label{display:block;margin:8px 0 6px;font-weight:600}
+            input{width:100%;padding:10px;border:1px solid #e6e9ef;border-radius:8px}
+            .actions{display:flex;gap:12px;justify-content:flex-end;margin-top:18px}
+            .errors{background:#fff0f0;border:1px solid #ffd1d1;padding:10px;border-radius:8px;color:#7a1b1b}
+            .btn{padding:10px 14px;border-radius:8px;border:0;color:#fff;background:var(--primary)}
+            a.cancel{background:#6c757d;color:#fff;padding:10px 14px;border-radius:8px;text-decoration:none}
+          </style>
+
+          <?php require_once __DIR__ . '/../views/_theme_head.php'; ?>
+        </head>
         <body>
-        <div class="card">
-          <h2>Edit Student</h2>
-          <?php if (!empty($errors)): ?><div class="errors"><ul style="margin:0;padding-left:18px"><?php foreach ($errors as $e){ echo '<li>'.htmlspecialchars($e,ENT_QUOTES).'</li>'; } ?></ul></div><?php endif; ?>
-          <form method="post" novalidate>
-            <label for="name">Name</label>
-            <input id="name" name="name" type="text" value="<?php echo htmlspecialchars($old['name'], ENT_QUOTES); ?>">
-            <label for="email">Email</label>
-            <input id="email" name="email" type="email" value="<?php echo htmlspecialchars($old['email'], ENT_QUOTES); ?>">
-            <label for="phone">Phone</label>
-            <input id="phone" name="phone" type="text" value="<?php echo htmlspecialchars($old['phone'], ENT_QUOTES); ?>">
-            <div class="actions">
-              <a class="cancel" href="<?php echo htmlspecialchars($studentsUrl, ENT_QUOTES); ?>">Cancel</a>
-              <button class="btn" type="submit">Save</button>
-            </div>
-          </form>
-        </div>
+          <?php require_once __DIR__ . '/../views/_theme_body.php'; ?>
+          <div class="card">
+            <h2>Edit Student</h2>
+            <?php if (!empty($errors)): ?><div class="errors"><ul style="margin:0;padding-left:18px"><?php foreach ($errors as $e){ echo '<li>'.htmlspecialchars($e,ENT_QUOTES).'</li>'; } ?></ul></div><?php endif; ?>
+            <form method="post" novalidate>
+              <label for="name">Name</label>
+              <input id="name" name="name" type="text" value="<?php echo htmlspecialchars($old['name'], ENT_QUOTES); ?>">
+              <label for="email">Email</label>
+              <input id="email" name="email" type="email" value="<?php echo htmlspecialchars($old['email'], ENT_QUOTES); ?>">
+              <label for="phone">Phone</label>
+              <input id="phone" name="phone" type="text" value="<?php echo htmlspecialchars($old['phone'], ENT_QUOTES); ?>">
+              <div class="actions">
+                <a class="cancel" href="<?php echo htmlspecialchars($studentsUrl, ENT_QUOTES); ?>">Cancel</a>
+                <button class="btn" type="submit">Save</button>
+              </div>
+            </form>
+          </div>
         </body>
         </html>
         <?php
