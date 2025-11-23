@@ -123,6 +123,37 @@ if ($route === '/api/students' && $_SERVER['REQUEST_METHOD'] === 'GET') {
     exit;
 }
 
+// students list / create (existing)
+// ...existing code...
+
+// changed code: students edit/delete
+if ($route === '/students/edit' && in_array($_SERVER['REQUEST_METHOD'], ['GET','POST'])) {
+    require_once __DIR__ . '/../src/Controller/StudentController.php';
+    $c = new \App\Controller\StudentController($GLOBALS['pdo'] ?? null);
+    $c->edit();
+    exit;
+}
+if ($route === '/students/delete' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    require_once __DIR__ . '/../src/Controller/StudentController.php';
+    $c = new \App\Controller\StudentController($GLOBALS['pdo'] ?? null);
+    $c->delete();
+    exit;
+}
+
+// changed code: incidents edit/delete
+if ($route === '/incidents/edit' && in_array($_SERVER['REQUEST_METHOD'], ['GET','POST'])) {
+    require_once __DIR__ . '/../src/Controller/DisciplinaryController.php';
+    $c = new \App\Controller\DisciplinaryController($GLOBALS['pdo'] ?? null);
+    $c->edit();
+    exit;
+}
+if ($route === '/incidents/delete' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    require_once __DIR__ . '/../src/Controller/DisciplinaryController.php';
+    $c = new \App\Controller\DisciplinaryController($GLOBALS['pdo'] ?? null);
+    $c->delete();
+    exit;
+}
+
 // fallback 404
 http_response_code(404);
 echo '<h1>404 Not Found</h1>';
