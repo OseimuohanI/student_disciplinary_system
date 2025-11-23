@@ -1,0 +1,10 @@
+RewriteEngine On
+
+# Change this to the path from http://localhost/ to your public folder.
+# Based on your earlier debug the correct value is:
+RewriteBase /student_disciplinary_system/student-disciplinary-system/public/
+
+# If the requested resource is not a real file or directory, route to index.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.php [L,QSA]
